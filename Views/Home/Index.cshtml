@@ -1,0 +1,540 @@
+﻿@model Firelabel.Models.OrderVM
+@{
+    ViewBag.Title = "Orders";
+}
+
+
+
+<div class="modal" id="DeleteConfirmModal" style="display:none;" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="-modal-title">Delete</h4>
+                <button type="button" id="btnclose" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure want to delete this record?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" id="btnc" onclick="DeleteById()">OK</button>
+                <button type="button" id="btncancel" class="btn btn-default" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Orders</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { id = "searchForm" }))
+                    {
+
+                        <div class="card-body">
+                            <input type="hidden" name="PageNo" id="PageNumner" value="@Model.PageNo" />
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="SO">SO#</label>
+                                        @Html.TextBoxFor(m => m.SO, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="Product">Product</label>
+                                        @Html.TextBoxFor(m => m.Product, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="Qty">Ord Qty</label>
+                                        @Html.TextBoxFor(m => m.Qty, new { @class = "form-control", type = "number" })
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="LabelType">Label Type</label>
+                                        @Html.TextBoxFor(m => m.LabelType, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="StartOrderDate">Order Start Date</label>
+                                        <div class="input-group date" id="reservationstartdate" data-target-input="nearest">
+                                            @if (!string.IsNullOrEmpty(Model.StartOrderDate))
+                                            {
+                                                <input type="text" id="StartOrderDate" name="StartOrderDate" placeholder="MM/dd/yyyy" value="@Model.StartOrderDate" class="form-control datetimepicker-input" data-target="#reservationstartdate" />
+                                            }
+                                            else
+                                            {
+                                                <input type="text" id="StartOrderDate" name="StartOrderDate" placeholder="MM/dd/yyyy" class="form-control datetimepicker-input" data-target="#reservationstartdate" />
+                                            }
+                                            <div class="input-group-append" data-target="#reservationstartdate" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label for="EndOrderDate">Order End Date</label>
+                                        <div class="input-group date" id="reservationenddate" data-target-input="nearest">
+                                            @if (!string.IsNullOrEmpty(Model.EndOrderDate))
+                                            {
+                                                <input type="text" id="EndOrderDate" name="EndOrderDate" placeholder="MM/dd/yyyy" value="@Model.EndOrderDate" class="form-control datetimepicker-input" data-target="#reservationenddate" />
+                                            }
+                                            else
+                                            {
+                                                <input type="text" id="EndOrderDate" name="EndOrderDate" placeholder="MM/dd/yyyy" class="form-control datetimepicker-input" data-target="#reservationenddate" />
+                                            }
+                                            <div class="input-group-append" data-target="#reservationenddate" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 hs-submit">
+                                    <div class="form-group btn-wrap">
+                                        <label for="EndOrderDate">&nbsp;</label>
+                                        <button type="submit" value="Search" name="command" class="btn btn-primary">Search</button>
+                                        <button type="submit" value="Export" onclick="Export();" name="command" class="btn btn-primary">Export</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                    @*<div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group" style="float:right;">
+                                        @Html.DropDownListFor(model => model.hiddenType, (IEnumerable<SelectListItem>)ViewBag.LabelTypelist, "Select Label Type", new { @class = "form-control", @id = "LabelTypeId" })
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+                    <div class="card-body">
+                        @if (ViewBag.LabelTypelist != null)
+                        {
+                            <div class="form-group lablediv">
+                                @Html.DropDownListFor(model => model.hiddenType, (IEnumerable<SelectListItem>)ViewBag.LabelTypelist, "Select Label Type", new { @class = "form-control", @id = "LabelTypeId" })
+
+                            </div>
+                        }
+
+                        <table id="OrderTable" class="table display table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>SO#</th>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Label Type</th>
+                                    <th>Order Date</th>
+                                    <th>Label Range</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Orders != null)
+                                {
+
+                                    foreach (var order in Model.Orders)
+                                    {
+                                        var otncount = Model.OrderInvoiceRanges.Where(x => x.SO == order.SO).ToList().Count();
+                                        var ChildList = Model.OrderInvoiceRanges.Where(x => x.SO == order.SO).ToList();
+                                        //otncount = otncount;
+                                        <tr style="background-color:#4B94BF;color:#ffffff;">
+                                            <td>@order.SO</td>
+                                            <td>@order.Product</td>
+                                            <td>@order.Qty</td>
+                                            <td> @order.LabelType</td>
+                                            <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                                            <td>
+
+                                                @if (ChildList.Count > 0)
+                                                {
+                                                    foreach (var orderInvoiceRange in ChildList)
+                                                    {
+                                                        <table id="InnerTable" border="0" cellspacing="0" cellpadding="0">
+                                                            <tr>
+                                                                <td>@orderInvoiceRange.BeginInvoice - @orderInvoiceRange.EndInvoice</td>
+                                                                <td><div class="delete-icon" onclick="DeleteConfirm(@orderInvoiceRange.OrderInvoiceRangeId)"></div></td>
+                                                            </tr>
+                                                        </table>
+
+                                                    }
+                                                }
+
+                                            </td>
+                                            @*<td></td>*@
+                                            <td align="center">
+
+                                                @if (ChildList.Count > 0)
+                                                {
+
+                                                    <a title="AddLabelNumber" style="color:#fff;" class="btn btn-primary" onclick="EditLabelNumber('@order.SO')">
+                                                        Edit Label
+                                                    </a>
+
+
+                                                }
+                                                else
+                                                {
+                                                    <a title="AddLabelNumber" style="color:#fff;" class="btn btn-primary" onclick="AddLabelNumber('@order.SO')">
+                                                        Add Label
+                                                    </a>
+
+                                                }
+
+
+                                            </td>
+
+                                        </tr>
+
+                                    }
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editmodal-LabelNumber">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                @using (Html.BeginForm("EditLableNumber", "Home", FormMethod.Post, new { id = "EditLableNumber" }))
+                {
+                    @*@Html.HiddenFor(m => m.SO)
+                        @Html.HiddenFor(m => m.Product)
+                        @Html.HiddenFor(m => m.Qty)
+                        @Html.HiddenFor(m => m.LabelType)
+                        @Html.HiddenFor(m => m.StartOrderDate)
+                        @Html.HiddenFor(m => m.EndOrderDate)*@
+                    @Html.HiddenFor(m => m.hiddenSearch, new { @id = "editSearch" })
+                    @Html.HiddenFor(m => m.hiddenType, new { @id = "editType" })
+                    <input type="hidden" class="SO" name="obj.SO" id="obj.SO" value="@Model.SO" />
+                    <input type="hidden" class="Product" name="obj.Product" id="obj.Product" value="@Model.Product" />
+                    <input type="hidden" class="LabelType" name="obj.LabelType" id="obj.LabelType" value="@Model.LabelType" />
+                    <input type="hidden" class="StartOrderDate" name="obj.StartOrderDate" id="obj.StartOrderDate" value="@Model.StartOrderDate" />
+                    <input type="hidden" class="EndOrderDate" name="obj.EndOrderDate" id="obj.EndOrderDate" value="@Model.EndOrderDate" />
+                    <input type="hidden" class="SONumber" name="obj.SONumber" id="obj.SONumber" value="@Model.SONumber" />
+                    <input type="hidden" class="LabelTypeId" name="obj.LabelTypeId" id="LabelTypeId" value="@Model.LabelTypeId" />
+                    <input type="hidden" name="type" id="type" />
+                    <input type="hidden" class="PageNo" name="obj.PageNo" id="EditPageNo" value="@Model.PageNo" />
+
+
+                    @*@Html.HiddenFor(m => m.SONumber)
+                        @Html.HiddenFor(m => m.OrderInvoiceRangeId)*@
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Label Number</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="ListPopupData"></div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary editbtn" id="SaveButton">Save</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addmodal-LabelNumber">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                @using (Html.BeginForm("AddLableNumber", "Home", FormMethod.Post, new { id = "AddLabelNumber" }))
+                {
+                    @Html.HiddenFor(m => m.SO)
+                    @Html.HiddenFor(m => m.Product)
+                    @Html.HiddenFor(m => m.Qty)
+                    @Html.HiddenFor(m => m.LabelType)
+                    @Html.HiddenFor(m => m.StartOrderDate)
+                    @Html.HiddenFor(m => m.EndOrderDate)
+                    @Html.HiddenFor(m => m.LabelTypeId)
+                    @Html.HiddenFor(m => m.hiddenSearch, new { @id = "addSearch" })
+                    @Html.HiddenFor(m => m.hiddenType, new { @id = "addType" })
+                    @Html.HiddenFor(m => m.PageNo, new { @id = "AddPageNo" })
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Label Number</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="addSoNumber" name="addSoNumber" />
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label id="AddSalesOrder"></label>
+                                </div>
+                            </div>
+                            <div class="row" id="MainTable">
+                                <div class="col-md-12 form-groupwrap">
+                                    <div class="form-group">
+                                        <label for="SO">Begin</label>
+                                        <input type="number" name="Begin" id="Begin" class="form-control" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Product">End</label>
+                                        <input type="number" name="End" id="End" class="form-control" />
+                                    </div>
+                                    <div class="plus-icon" onclick="AddLable();"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary addbtn" id="SaveButton">Save</button>
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    //function Toggle(id, e) {
+    //    var tr = $(e).parent().siblings('#chid_' + id);
+
+    //    if ($(e).parent().hasClass('shown')) {
+    //        tr.each(function (i, el) {
+    //            $(el).css('display', 'none');
+    //            $(e).parent().removeClass('shown');
+    //        });
+    //    }
+    //    else {
+    //        $(e).parent().addClass('shown');
+    //        tr.each(function (i, el) {
+    //            $(el).css('display', 'table-row');
+    //        });
+    //    }
+    //}
+
+    $(document).ready(function () {
+
+
+        var table = $('#OrderTable').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "dom": '<"toolbar">frtip'
+        });
+        //$("div.toolbar").html($('#LabelTypeId').html());
+        if ('@Model.hiddenSearch' != null && '@Model.hiddenSearch' != undefined) {
+            table.search('@Model.hiddenSearch').draw();
+        }
+         if ('@Model.hiddenType' != null && '@Model.hiddenType' != undefined) {
+             table.columns(3).search('@Model.hiddenType').draw();
+        }
+        debugger
+        var No = parseInt($("#PageNumner").val())
+        if (No == undefined || No == "" || No == null) {
+            No = 0
+        }
+        var oTable = $('#OrderTable').dataTable();
+        oTable.fnPageChange(No);
+
+        $("#PageNumner").val(0)
+        $("#AddPageNo").val(0)
+        $("#EditPageNo").val(0)
+
+            //$('#OrderTable').on('search.dt', function (e, settings) {
+            //    debugger;
+            //    var ss = this.value;
+            //  //  table.search(this.value).draw();
+            //});
+
+        $('input[type="search"]').on('keyup', function () {
+            console.log($(this).val());
+
+        })
+
+        $('#LabelTypeId').on('change', function () {
+
+            table.columns(3).search(this.value).draw();
+            $("#LabelTypeId").val(this.value);
+
+        });
+
+
+
+    });
+
+    $('#reservationstartdate').datetimepicker({
+        format: 'L'
+    });
+    $('#reservationenddate').datetimepicker({
+        format: 'L'
+    });
+    //function EditLabelNumber(pid, id, begin, end) {
+    //    $('#editmodal-LabelNumber').modal('show');
+
+    //    $("#SalesOrder")[0].innerText = "SO# : " + id;
+    //    $('#SONumber').val(id);
+    //    $('#OrderInvoiceRangeId').val(pid);
+    //    $('#Begin').val(begin);
+    //    $('#End').val(end);
+    //}
+    function EditLabelNumber(id) {
+
+        var url = "/Home/EditLableNumber?id=" + id;
+        $("#ListPopupData").load(url, function () {
+
+            $('#editmodal-LabelNumber').modal('show');
+        });
+
+    }
+    $(".addbtn").click(function () {
+        debugger
+        $('#addSearch').val($('#OrderTable_filter input').val());
+        $('#addType').val($('#LabelTypeId').val());
+
+        var info = $('#OrderTable').DataTable().page.info();
+        if (info != undefined) {
+            if (info.page != undefined) {
+                $("#AddPageNo").val(info.page)
+                $("#EditPageNo").val(0)
+            }
+        }
+    })
+    $(".editbtn").click(function () {
+        debugger
+        $('#editSearch').val($('#OrderTable_filter input').val());
+        $('#editType').val($('#LabelTypeId').val());
+
+        var info = $('#OrderTable').DataTable().page.info();
+        if (info != undefined) {
+            if (info.page != undefined)
+            {
+                $("#AddPageNo").val(0)
+                $("#EditPageNo").val(info.page)
+            }
+        }
+    })
+    function AddLabelNumber(id) {
+        $("#MainTable").html('');
+        $("#MainTable").html("<div class='col-md-12 form-groupwrap'><div class='form-group'><label for='SO'>Begin</label><input type='number' name='Begin' id='Begin' class='form-control' /></div><div class='form-group'><label for='Product'>End</label><input type='number' name='End' id='End' class='form-control' /></div><div class='plus-icon' onclick='AddLable();'></div></div>");
+        $('#addmodal-LabelNumber').modal('show');
+        $("#AddSalesOrder")[0].innerText = "SO# : " + id;
+        $('#addSoNumber').val(id);
+    }
+    function AddLable() {
+
+        //var html = $("#MainTable").html();
+        var newhtml = "<div class='col-md-12 form-groupwrap'><div class='form-group'><label for='SO'>Begin</label><input type='number' name='Begin' id='Begin' class='form-control' /></div><div class='form-group'><label for='Product'>End</label><input type='number' name='End' id='End' class='form-control' /></div><div class='minus-icon' onclick='RemoveLable(this);'></div></div>";
+        $("#MainTable").append(newhtml);
+    }
+    function AddLables() {
+
+        var len = $("#MainTables").find('.OrderInveRangList').length
+        var i = len;
+
+        var newhtml = '<div class="OrderInveRangList AddFields_' + i + '" id="' + i + '"><div class="col-md-12 form-groupwrap"><div class="form-group"><label for="SO">Begin</label><input type="number" name="obj.OrderInvoiceRanges[' + i + '].BeginInvoice" id="obj.OrderInvoiceRanges[' + i + '].BeginInvoice" class="form-control Begin"></div><div class="form-group"><label for="Product">End</label><input type="number" name="obj.OrderInvoiceRanges[' + i + '].EndInvoice" id="obj.OrderInvoiceRanges[' + i + '].EndInvoice" class="form-control End"></div><div class="minus-icon" onclick="RemoveLables(' + i + ');"></div></div></div>';
+        $("#MainTables").append(newhtml);
+    }
+
+    function RemoveLable(el) {
+        $(el).parent(".form-groupwrap").remove();
+    }
+    function RemoveLables(k) {
+
+        var i = k;
+        $(".AddFields_" + i).remove();
+
+        var j = 0;
+        $("#MainTables").find(".OrderInveRangList").each(function () {
+
+
+            $(this).attr('class', 'OrderInveRangList AddFields_' + j)
+            $(this).attr('id', j)
+            $(this).find('.Begin').attr('name', 'obj.OrderInvoiceRanges[' + j + '].BeginInvoice');
+            $(this).find('.Begin').attr('id', 'obj.OrderInvoiceRanges[' + j + '].BeginInvoice');
+            $(this).find('.End').attr('name', 'obj.OrderInvoiceRanges[' + j + '].EndInvoice');
+            $(this).find('.End').attr('id', 'obj.OrderInvoiceRanges[' + j + '].EndInvoice');
+            $(this).find('.minus-icon').attr('onclick', 'RemoveLables(' + j + ')');
+
+            j++;
+        });
+
+    }
+    function Export() {
+        var StartDate = $("#StartOrderDate").val();
+        var EndDate = $("#EndOrderDate").val();
+        if (StartDate == "" && EndDate == "") {
+            alert("Please Select Start And End Date");
+            event.preventDefault();
+            return false;
+        }
+    };
+
+
+
+    function DeleteConfirm(Id) {
+
+        DeleteDataId = Id;
+        $('#DeleteConfirmModal').show();
+    }
+    function DeleteById(Id) {
+        debugger
+
+         var SO = $("#SO").val()
+         var Product = $("#Product").val()
+         var Qty = $("#Qty").val()
+         var LabelType = $("#LabelType").val()
+         var StartOrderDate = $("#StartOrderDate").val()
+         var EndOrderDate = $("#EndOrderDate").val()
+
+        var PNo = 0;
+        var info = $('#OrderTable').DataTable().page.info();
+        if (info != undefined) {
+            if (info.page != undefined) {
+                $("#AddPageNo").val(0)
+                $("#EditPageNo").val(0)
+                PNo = info.page;
+            }
+        }
+
+         window.location = '/Home/DeleteRange?id=' + DeleteDataId + "&SO=" + SO + "&Prdt=" + Product +
+             "&Qty=" + Qty + "&Ltype=" + LabelType + "&Sdate=" + StartOrderDate + "&Edate=" + EndOrderDate + "&Search=" + $('#OrderTable_filter input').val() + "&LableType=" + $('#LabelTypeId').val() + "&PageNo=" + PNo
+            $('#DeleteConfirmModal').hide();
+
+    }
+
+    $('#btnclose').click(function () {
+        $('#DeleteConfirmModal').hide();
+    })
+    $('#btncancel').click(function () {
+        $('#DeleteConfirmModal').hide();
+    })
+
+
+</script>

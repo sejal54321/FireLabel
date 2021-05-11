@@ -1,0 +1,46 @@
+﻿@model Firelabel.Models.OrderVM
+  
+<div class="row">
+    <div class="col-md-12 form-groupwrap">
+        <div class="form-group col-md-10">
+            <label id="SalesOrder">SO# : @Model.OrderInvoiceSONO</label>
+        </div>
+        <div class="form-group" style="padding-left: 32px;">
+            <div class="plus-icon" onclick="AddLables();"></div>
+        </div>
+
+    </div>
+
+    @if (Model.OrderInvoiceRanges != null)
+    {
+        int k = 0;
+        if (Model.OrderInvoiceRanges.Count > 0)
+        {
+            <input type="hidden" class="SO" name="obj.OrderInvoiceSONO" id="obj.OrderInvoiceSONO" value="@Model.OrderInvoiceSONO" />
+            <div class="row" id="MainTables">
+
+                @foreach (var item in Model.OrderInvoiceRanges)
+                {
+                    <div class="OrderInveRangList AddFields_@k" id="@k">
+                        <div class="col-md-12 form-groupwrap">
+                            <div class="form-group">
+                                <label for="SO">Begin</label>
+                                <input type="number" name="obj.OrderInvoiceRanges[@k].BeginInvoice" id="obj.OrderInvoiceRanges[@k].BeginInvoice" value="@Model.OrderInvoiceRanges[k].BeginInvoice" class="form-control Begin" />
+                            </div>
+                            <div class="form-group">
+                                <label for="Product">End</label>
+                                <input type="number" name="obj.OrderInvoiceRanges[@k].EndInvoice" id="obj.OrderInvoiceRanges[@k].EndInvoice" value="@Model.OrderInvoiceRanges[k].EndInvoice" class="form-control End" />
+                            </div>                         
+                            <div class="minus-icon" onclick="RemoveLables(@k);"></div>
+
+                        </div>
+                    </div>
+
+
+                    k++;
+                }
+            </div>
+        }
+    }
+
+</div>
