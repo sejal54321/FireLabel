@@ -194,6 +194,24 @@ namespace Firelabel.Controllers
                     }
 
                 }
+                else
+                {
+                    var getCout = FirelabelModel.OrderInvoiceRanges.Where(p => p.SO == obj.OrderInvoiceSONO).ToList();
+                    if (getCout.Count > 0)
+                    {
+                        var result = FirelabelModel.OrderInvoiceRanges.Where(p => p.SO == obj.OrderInvoiceSONO).ToList();
+                        if (result != null)
+                        {
+                            foreach (var item in result)
+                            {
+                                FirelabelModel.OrderInvoiceRanges.Remove(item);
+                                FirelabelModel.SaveChanges();
+
+                            }
+                        }
+                    }
+
+                }
             }
             obj = SearchData(obj);
             TempData["OrderVM"] = null;
