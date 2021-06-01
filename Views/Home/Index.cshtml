@@ -406,7 +406,7 @@
     //}
     function EditLabelNumber(id) {
 
-        var url = "/Home/EditLableNumber?id=" + id;
+        var url = "/FireLabel/Home/EditLableNumber?id=" + id;
         $("#ListPopupData").load(url, function () {
 
             $('#editmodal-LabelNumber').modal('show');
@@ -523,7 +523,7 @@
             }
         }
 
-         window.location = '/Home/DeleteRange?id=' + DeleteDataId + "&SO=" + SO + "&Prdt=" + Product +
+         window.location = '/FireLabel/Home/DeleteRange?id=' + DeleteDataId + "&SO=" + SO + "&Prdt=" + Product +
              "&Qty=" + Qty + "&Ltype=" + LabelType + "&Sdate=" + StartOrderDate + "&Edate=" + EndOrderDate + "&Search=" + $('#OrderTable_filter input').val() + "&LableType=" + $('#LabelTypeId').val() + "&PageNo=" + PNo
             $('#DeleteConfirmModal').hide();
 
